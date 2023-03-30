@@ -8,9 +8,17 @@ defmodule Cvax do
   Documentation for `Cvax`.
   """
 
-  # cvax
+  # cn
   # ============================================
-  @spec cx(any()) :: String.t()
+  @spec cn(any) :: binary
+  def cn(classes) do
+    cx(classes)
+    |> Twix.tw()
+  end
+
+  # cx
+  # ============================================
+  @spec cx(any) :: String.t()
   def cx(classes) when is_binary(classes) do
     classes
     |> String.trim()
@@ -45,14 +53,37 @@ defmodule Cvax do
         }) :: (any() -> String.t())
   def compose_variants(configs) do
     case configs do
+      %{
+        variants: variants,
+        default_variants: default_variants,
+        compound_variants: compound_variants
+      }
+      when is_map(variants) and map_size(variants) > 0 and is_map(default_variants) ->
+        fn
+          props when is_map(props) and map_size(props) > 0 ->
+            get_classes_from_map(props, configs.base, variants, default_variants)
+            |> add_compound_varriants(props, compound_variants)
+            |> Twix.tw()
+
+          props when is_list(props) ->
+            get_classes_from_list(props, configs.base, variants, default_variants)
+            |> add_compound_varriants(props, compound_variants)
+            |> Twix.tw()
+
+          _props ->
+            return_defaults(configs)
+        end
+
       %{variants: variants, default_variants: default_variants}
       when is_map(variants) and map_size(variants) > 0 and is_map(default_variants) ->
         fn
           props when is_map(props) and map_size(props) > 0 ->
             get_classes_from_map(props, configs.base, variants, default_variants)
+            |> Twix.tw()
 
           props when is_list(props) ->
             get_classes_from_list(props, configs.base, variants, default_variants)
+            |> Twix.tw()
 
           _props ->
             return_defaults(configs)
@@ -63,9 +94,11 @@ defmodule Cvax do
         fn
           props when is_map(props) and map_size(props) > 0 ->
             get_classes_from_map(props, configs.base, variants)
+            |> Twix.tw()
 
           props when is_list(props) ->
             get_classes_from_list(props, configs.base, variants)
+            |> Twix.tw()
 
           _props ->
             return_defaults(configs)
@@ -73,20 +106,26 @@ defmodule Cvax do
 
       %{base: base} ->
         fn
-          %{:class => class} -> cx([base, class])
-          {:class, class} -> cx([base, class])
-          [class: class] -> cx([base, class])
+          %{:class => class} -> cx([base, class]) |> Twix.tw()
+          {:class, class} -> cx([base, class]) |> Twix.tw()
+          [class: class] -> cx([base, class]) |> Twix.tw()
           _ -> cx(base)
         end
 
       _ ->
         fn
-          %{:class => class} -> cx(class)
-          {:class, class} -> cx(class)
-          [class: class] -> cx(class)
+          %{:class => class} -> cx(class) |> Twix.tw()
+          {:class, class} -> cx(class) |> Twix.tw()
+          [class: class] -> cx(class) |> Twix.tw()
           _ -> ""
         end
     end
+  end
+
+  # -- private functions
+  # ============================================
+  defp add_compound_varriants(classes, _props, _compound_variants) do
+    classes
   end
 
   defp get_classes_from_list(props, base, variants) do

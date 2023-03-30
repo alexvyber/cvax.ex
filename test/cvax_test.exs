@@ -191,6 +191,83 @@ defmodule CvaxTest do
     assert with_variants.(%{}) ==
              "rounded-md text-base bg-slate-100 p-12"
 
+    assert with_variants.(%{font_size: :md, class: "text-lg"}) ==
+             "rounded-md bg-slate-100 p-12 text-lg"
+
+    assert with_variants.(font_size: :xs) ==
+             "rounded-md bg-slate-100 p-12 text-xs"
+
+    assert with_variants.(font_size: :lg, size: :lg, intent: :outline, class: "shadow-sm") ==
+             "rounded-md text-lg p-4 ring-1 ring-red-300 shadow-sm"
+
+    assert with_variants.(%{class: "shadow-sm", size: :lg, font_size: :lg, intent: :outline}) ==
+             "rounded-md text-lg ring-1 ring-red-300 p-4 shadow-sm"
+
+    assert with_variants.(
+             size: :lg,
+             font_size: :sm,
+             class: [
+               "font-bold",
+               %{class: ["sm:text-xl", {true, "lg:text-3xl"}]}
+             ]
+           ) ==
+             "rounded-md bg-slate-100 p-4 text-sm font-bold sm:text-xl lg:text-3xl"
+
+    assert with_variants.(
+             size: :lg,
+             font_size: :sm,
+             intent: :primary,
+             not_existing: :sm,
+             class: "leading-7"
+           ) ==
+             "rounded-md p-4 text-sm bg-red-300 leading-7"
+  end
+
+  test "base, variants, default variants and compound variants" do
+    configs = %{
+      base: "rounded-md",
+      variants: %{
+        intent: %{
+          primary: "bg-red-300",
+          secondary: "bg-slate-100",
+          outline: "ring-1 ring-red-300"
+        },
+        font_size: %{
+          xs: "text-xs",
+          sm: "text-sm",
+          base: "text-base",
+          md: "text-md",
+          lg: "text-lg"
+        },
+        size: %{
+          xs: "p-1",
+          sm: "p-2",
+          lg: "p-4",
+          xl: "p-12"
+        }
+      },
+      default_variants: %{
+        size: :xl,
+        font_size: :base,
+        intent: :secondary
+      },
+      compound_variants: [
+        %{
+          font_size: :xs,
+          size: :xs,
+          class: "shadow-xs"
+        }
+      ]
+    }
+
+    with_variants = Cvax.compose_variants(configs)
+
+    assert with_variants.(nil) ==
+             "rounded-md text-base bg-slate-100 p-12"
+
+    assert with_variants.(%{}) ==
+             "rounded-md text-base bg-slate-100 p-12"
+
     assert with_variants.(%{font_size: :md}) ==
              "rounded-md bg-slate-100 p-12 text-md"
 
@@ -223,6 +300,8 @@ defmodule CvaxTest do
              "rounded-md p-4 text-sm bg-red-300 leading-7"
   end
 
+  # cx
+  # ============================================
   test "cx" do
     test_cases = %{
       %{} => "",
@@ -335,5 +414,11 @@ defmodule CvaxTest do
     Enum.map(test_cases, fn {input, output} ->
       assert Cvax.cx(input) == output
     end)
+  end
+
+  # cn
+  # ============================================
+  test "cn" do
+    Cvax.cn("text-sm text-lg") == "text-lg"
   end
 end
