@@ -13,7 +13,6 @@ defmodule Cvax do
   @spec cn(any) :: binary
   def cn(classes) do
     cx(classes)
-    |> Twix.tw()
   end
 
   # cx
@@ -63,12 +62,10 @@ defmodule Cvax do
           props when is_map(props) and map_size(props) > 0 ->
             get_classes_from_map(props, configs.base, variants, default_variants)
             |> add_compound_varriants(props, compound_variants)
-            |> Twix.tw()
 
           props when is_list(props) ->
             get_classes_from_list(props, configs.base, variants, default_variants)
             |> add_compound_varriants(props, compound_variants)
-            |> Twix.tw()
 
           _props ->
             return_defaults(configs)
@@ -79,11 +76,9 @@ defmodule Cvax do
         fn
           props when is_map(props) and map_size(props) > 0 ->
             get_classes_from_map(props, configs.base, variants, default_variants)
-            |> Twix.tw()
 
           props when is_list(props) ->
             get_classes_from_list(props, configs.base, variants, default_variants)
-            |> Twix.tw()
 
           _props ->
             return_defaults(configs)
@@ -94,11 +89,9 @@ defmodule Cvax do
         fn
           props when is_map(props) and map_size(props) > 0 ->
             get_classes_from_map(props, configs.base, variants)
-            |> Twix.tw()
 
           props when is_list(props) ->
             get_classes_from_list(props, configs.base, variants)
-            |> Twix.tw()
 
           _props ->
             return_defaults(configs)
@@ -106,17 +99,17 @@ defmodule Cvax do
 
       %{base: base} ->
         fn
-          %{:class => class} -> cx([base, class]) |> Twix.tw()
-          {:class, class} -> cx([base, class]) |> Twix.tw()
-          [class: class] -> cx([base, class]) |> Twix.tw()
+          %{:class => class} -> cx([base, class])
+          {:class, class} -> cx([base, class])
+          [class: class] -> cx([base, class])
           _ -> cx(base)
         end
 
       _ ->
         fn
-          %{:class => class} -> cx(class) |> Twix.tw()
-          {:class, class} -> cx(class) |> Twix.tw()
-          [class: class] -> cx(class) |> Twix.tw()
+          %{:class => class} -> cx(class)
+          {:class, class} -> cx(class)
+          [class: class] -> cx(class)
           _ -> ""
         end
     end

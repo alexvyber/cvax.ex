@@ -192,7 +192,7 @@ defmodule CvaxTest do
              "rounded-md text-base bg-slate-100 p-12"
 
     assert with_variants.(%{font_size: :md, class: "text-lg"}) ==
-             "rounded-md bg-slate-100 p-12 text-lg"
+             "rounded-md bg-slate-100 p-12 text-md text-lg"
 
     assert with_variants.(font_size: :xs) ==
              "rounded-md bg-slate-100 p-12 text-xs"
@@ -221,6 +221,77 @@ defmodule CvaxTest do
              class: "leading-7"
            ) ==
              "rounded-md p-4 text-sm bg-red-300 leading-7"
+  end
+
+  test "base, variants and default variants - two" do
+    configs = %{
+      base: "",
+      variants: %{
+        type: %{
+          # constrained to breakpoint with padded content
+          one: "container mx-auto px-4 sm:px-6 lg:px-8",
+          # constrained with padded content
+          two: "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8",
+          # full width on mobile constrained to breakpoint with padded content above mobile
+          three: "container mx-auto sm:px-6 lg:px-8",
+          # full width on mobile constrained with padded content above
+          four: "mx-auto max-w-7xl sm:px-6 lg:px-8",
+          # constrained to breakpoint with no padded content after
+          five: "mx-auto px-2 2xs:px-3 xs:px-4 lg:px-0"
+        },
+        size: %{
+          xs: "p-1",
+          sm: "p-2",
+          lg: "p-4",
+          xl: "p-12"
+        }
+      },
+      default_variants: %{
+        size: :lg,
+        type: :five
+      }
+    }
+
+    with_variants = Cvax.compose_variants(configs)
+
+    IO.inspect(with_variants.(%{type: :five, size: :lg, class: "text-lg"}))
+
+    # assert with_variants.(nil) ==
+    #          "rounded-md text-base bg-slate-100 p-12"
+
+    # assert with_variants.(%{}) ==
+    #          "rounded-md text-base bg-slate-100 p-12"
+
+    # assert with_variants.(%{font_size: :md, class: "text-lg"}) ==
+    #          "rounded-md bg-slate-100 p-12 text-lg"
+
+    # assert with_variants.(font_size: :xs) ==
+    #          "rounded-md bg-slate-100 p-12 text-xs"
+
+    # assert with_variants.(font_size: :lg, size: :lg, intent: :outline, class: "shadow-sm") ==
+    #          "rounded-md text-lg p-4 ring-1 ring-red-300 shadow-sm"
+
+    # assert with_variants.(%{class: "shadow-sm", size: :lg, font_size: :lg, intent: :outline}) ==
+    #          "rounded-md text-lg ring-1 ring-red-300 p-4 shadow-sm"
+
+    # assert with_variants.(
+    #          size: :lg,
+    #          font_size: :sm,
+    #          class: [
+    #            "font-bold",
+    #            %{class: ["sm:text-xl", {true, "lg:text-3xl"}]}
+    #          ]
+    #        ) ==
+    #          "rounded-md bg-slate-100 p-4 text-sm font-bold sm:text-xl lg:text-3xl"
+
+    # assert with_variants.(
+    #          size: :lg,
+    #          font_size: :sm,
+    #          intent: :primary,
+    #          not_existing: :sm,
+    #          class: "leading-7"
+    #        ) ==
+    #          "rounded-md p-4 text-sm bg-red-300 leading-7"
   end
 
   test "base, variants, default variants and compound variants" do
